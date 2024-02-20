@@ -1,31 +1,69 @@
 #include "cpu.hpp"
 
-CPU::CPU(std::vector<byte>* ram) {
+CPU::CPU(std::vector<byte>* ram, std::vector<byte>* rom) {
 	_ram = ram;
 }
 
-void CPU::displayState() const {
+void CPU::displayStatus() const {
 	std::cout << "N V - B D I Z C" << "\n";
-	for (int i = sizeof(byte) * 8 - 1; i >= 0; i--) { std::cout << ((_statusFlags >> i) & 1) << " "; }
+
+	for (int i = sizeof(byte) * 8 - 1; i >= 0; i--) {
+		std::cout << ((_statusFlags >> i) & 1) << " ";
+	}
+
 	std::cout << std::endl;
 
-	std::cout << "A = $" << std::hex << std::setfill('0') << std::setw(2) << (int) _accumulator << std::endl;
-	std::cout << "X = $" << std::hex << std::setfill('0') << std::setw(2) << (int) _indexX << std::endl;
-	std::cout << "Y = $" << std::hex << std::setfill('0') << std::setw(2) << (int) _indexY << std::endl;
-	std::cout << "SP = $" << std::hex << std::setfill('0') << std::setw(2) << (int) _stackPointer << std::endl;
-	std::cout << "PC = $" << std::hex << std::setfill('0') << std::setw(4) << (int) _programCounter << std::endl;
-	std::cout << "Address = $" << std::hex << std::setfill('0') << std::setw(4) << (int) _addressBus << std::endl;
+	std::ios_base::fmtflags f(std::cout.flags());
+}
+
+void CPU::displayRegisters() const {
+	std::cout << std::hex << std::uppercase;
+
+	std::cout << "A = $" << std::setfill('0') << std::setw(2) << (int) _accumulator << std::endl;
+	std::cout << "X = $" << std::setfill('0') << std::setw(2) << (int) _indexX << std::endl;
+	std::cout << "Y = $" << std::setfill('0') << std::setw(2) << (int) _indexY << std::endl;
+
+	std::ios_base::fmtflags f(std::cout.flags());
+}
+
+void CPU::displayStackPointer() const {
+	std::cout << "SP = $" <<  std::hex << std::setfill('0') << std::setw(2) << (int) _stackPointer << std::endl;
+
+	std::ios_base::fmtflags f(std::cout.flags());
+}
+
+void CPU::displayBuses() const {
+	std::cout << std::hex << std::uppercase;
+
+	std::cout << "Data bus = $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+	std::cout << "Address bus = $" << std::setfill('0') << std::setw(4) << (int) _addressBus << std::endl;
+
+	std::ios_base::fmtflags f(std::cout.flags());
+}
+
+void CPU::displayProgramCounter() const {
+	std::cout << "PC = $" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << (int) _programCounter << std::endl;
+
+	std::ios_base::fmtflags f(std::cout.flags());
+}
+
+void CPU::displayState() const {
+	displayStatus();
+	displayRegisters();
+	displayStackPointer();
+	displayBuses();
+	displayProgramCounter();
 
 	std::ios_base::fmtflags f(std::cout.flags());
 }
 
 void CPU::updateState(byte value) {
-	if (value == (byte) 0) {
+	if (value == (byte) 0x00) {
 		unsetFlag(STATUS_FLAG::N);
 		setFlag(STATUS_FLAG::Z);
 	}
 
-	else if (value >= (byte)0x80 && value <= 0xFF) {
+	else if (value >= (byte) 0x80 && value <= 0xFF) {
 		setFlag(STATUS_FLAG::N);
 		unsetFlag(STATUS_FLAG::Z);
 	}
@@ -36,202 +74,468 @@ void CPU::updateState(byte value) {
 	}
 }
 
-void CPU::lda(byte opcode, byte operand) {
+void CPU::ADC(byte opcode, byte operand) {}
+
+void CPU::ADC(byte opcode, word operand) {}
+
+void CPU::AND(byte opcode, byte operand) {}
+
+void CPU::AND(byte opcode, word operand) {}
+
+void CPU::ASL(byte opcode) {}
+
+void CPU::ASL(byte opcode, byte operand) {}
+
+void CPU::ASL(byte opcode, word operand) {}
+
+void CPU::BCC(byte opcode) {}
+
+void CPU::BCS(byte opcode) {}
+
+void CPU::BEQ(byte opcode) {}
+
+void CPU::BIT(byte opcode, byte operand) {}
+
+void CPU::BIT(byte opcode, word operand) {}
+
+void CPU::BMI(byte opcode) {}
+
+void CPU::BNE(byte opcode) {}
+
+void CPU::BPL(byte opcode) {}
+
+void CPU::BRK(byte opcode) {
+	std::cout << "BRK" << std::endl;
+
+	_dataBus = (byte) ADDRESSING_MODES_BRK::IMPLIED;
+}
+
+void CPU::BVC(byte opcode) {}
+
+void CPU::BVS(byte opcode) {}
+
+void CPU::CLC(byte opcode) {
+	unsetFlag(STATUS_FLAG::C);
+}
+
+void CPU::CLD(byte opcode) {
+	unsetFlag(STATUS_FLAG::D);
+}
+
+void CPU::CLI(byte opcode) {
+	unsetFlag(STATUS_FLAG::I);
+}
+
+void CPU::CLV(byte opcode) {
+	unsetFlag(STATUS_FLAG::V);
+}
+
+void CPU::CMP(byte opcode, byte operand) {}
+
+void CPU::CMP(byte opcode, word operand) {}
+
+void CPU::CPX(byte opcode, byte operand) {}
+
+void CPU::CPX(byte opcode, word operand) {}
+
+void CPU::CPY(byte opcode, byte operand) {}
+
+void CPU::CPY(byte opcode, word operand) {}
+
+void CPU::DEC(byte opcode, byte operand) {}
+
+void CPU::DEC(byte opcode, word operand) {}
+
+void CPU::DEX(byte opcode) {}
+
+void CPU::DEY(byte opcode) {}
+
+void CPU::EOR(byte opcode, byte operand) {}
+
+void CPU::EOR(byte opcode, word operand) {}
+
+void CPU::INC(byte opcode, byte operand) {}
+
+void CPU::INC(byte opcode, word operand) {}
+
+void CPU::INX(byte opcode) {}
+
+void CPU::INY(byte opcode) {}
+
+void CPU::JMP(byte opcode, word operand) {}
+
+void CPU::JSR(byte opcode, word operand) {}
+
+void CPU::LDA(byte opcode, byte operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-		case 0xA9: // immediate
-			if (_ram) {
-				_accumulator = operand;
-			}
-			break;
-		case 0xA5: // zeropage
-			if (_ram) {
-				_accumulator = (*_ram)[(word)(operand)];
-			}
-			break;
-		case 0xB5: // zeropage, X
-			if (_ram) {
-				_accumulator = (*_ram)[(word)(operand + _indexX)];
-			}
-			break;
-		case 0xA1: // (indirect, X)
-			if (_ram) {
-				word zeroPageIndex = (word)((byte)(operand + _indexX));
-				if (zeroPageIndex == (word) 0xFF) {
-					_addressBus = ((word)(*_ram)[(word)(0x00)] << 8) | (word)(*_ram)[(word)(0xFF)];
-				}
+		case (byte) ADDRESSING_MODES_LDA::IMMEDIATE:
+			std::cout << "LDA #$" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
 
-				else {
-					_addressBus = ((word)(*_ram)[(word)(zeroPageIndex) + word(1)] << 8) | (word)(*_ram)[(word)(zeroPageIndex)];
-				}
+			break;
 
-				_accumulator = (*_ram)[_addressBus];
-			}
+		case (byte) ADDRESSING_MODES_LDA::ZEROPAGE:
+			std::cout << "LDA $" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
+
 			break;
-		case 0xB1: // (indirect), Y
-			if (_ram) {
-				_addressBus = (((word)(*_ram)[(word)(operand) + (word)(0x01)] << 8) | (word)(*_ram)[(word)(operand)]) + (word)(_indexY);
-				
-				_accumulator = (*_ram)[_addressBus];
-			}
+
+		case (byte) ADDRESSING_MODES_LDA::ZEROPAGE_X:
+			std::cout << "LDA $" << std::setfill('0') << std::setw(2) << (int) operand << ", X" << std::endl;
+
 			break;
+
+		case (byte) ADDRESSING_MODES_LDA::ZEROPAGE_PRE_X:
+			std::cout << "LDA ($" << std::setfill('0') << std::setw(2) << (int) operand << ", X)" << std::endl;
+
+			break;
+
+		case (byte) ADDRESSING_MODES_LDA::ZEROPAGE_POST_Y:
+			std::cout << "LDA ($" << std::setfill('0') << std::setw(2) << (int) operand << "), Y" << std::endl;
+
+			break;
+
 		default:
 			break;
 	}
 
 	updateState(_accumulator);
+
+	std::cout.flags(f);
 }
 
-void CPU::lda(byte opcode, word operand) {
+void CPU::LDA(byte opcode, word operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-		case 0xAD: // absolute
-			if (_ram) {
-				_accumulator = (*_ram)[operand];
-			}
+		case (byte) ADDRESSING_MODES_LDA::ABSOLUTE:
+			std::cout << "LDA $" << std::setfill('0') << std::setw(4) << (int) operand << std::endl;
+
 			break;
-		case 0xBD: // absolute, X
-			if (_ram) {
-				_accumulator = (*_ram)[operand + _indexX];
-			}
+
+		case (byte) ADDRESSING_MODES_LDA::ABSOLUTE_X:
+			std::cout << "LDA $" << std::setfill('0') << std::setw(4) << (int) operand << ", X" << std::endl;
+
 			break;
-		case 0xB9: // absolute, Y
-			if (_ram) {
-				_accumulator = (*_ram)[operand + _indexY];
-			}
+
+		case (byte) ADDRESSING_MODES_LDA::ABSOLUTE_Y:
+			std::cout << "LDA $" << std::setfill('0') << std::setw(4) << (int) operand << ", Y" << std::endl;
+
 			break;
+
 		default:
 			break;
 	}
 
 	updateState(_accumulator);
+
+	std::cout.flags(f);
 }
 
-void CPU::ldx(byte opcode, byte operand) {
+void CPU::LDX(byte opcode, byte operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-	case 0xA2: // immediate
-		if (_ram) {
-			_indexX = operand;
-		}
-		break;
-	case 0xA6: // zeropage
-		break;
-	case 0xB6: // zeropage, Y
-		break;
-	default:
-		break;
+		case (byte) ADDRESSING_MODES_LDX::IMMEDIATE:
+			std::cout << "LDX #$" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
+
+			break;
+
+		case (byte) ADDRESSING_MODES_LDX::ZEROPAGE:
+			std::cout << "LDX $" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
+
+			break;
+
+		case (byte) ADDRESSING_MODES_LDX::ZEROPAGE_Y:
+			std::cout << "LDX $" << std::setfill('0') << std::setw(2) << (int) operand << ", Y)" << std::endl;
+
+			break;
+
+		default:
+			break;
 	}
 	
 	updateState(_indexX);
+
+	std::cout.flags(f);
 }
 
-void CPU::ldx(byte opcode, word operand) {
+void CPU::LDX(byte opcode, word operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-	case 0xAE: // absolute
-		if (_ram) {
-			_indexX = (*_ram)[operand];
-		}
-		break;
-	case 0xBE: // absolute, Y
-		break;
-	default:
-		break;
+		case (byte) ADDRESSING_MODES_LDX::ABSOLUTE:
+			std::cout << "LDX $" << std::setfill('0') << std::setw(4) << (int) operand << std::endl;
+
+			break;
+
+		case (byte) ADDRESSING_MODES_LDX::ABSOLUTE_Y:
+			std::cout << "LDX ($" << std::setfill('0') << std::setw(4) << (int) operand << ", Y)" << std::endl;
+
+			break;
+
+		default:
+			break;
 	}
 
 	updateState(_indexX);
+
+	std::cout.flags(f);
 }
 
-void CPU::ldy(byte opcode, byte operand) {
+void CPU::LDY(byte opcode, byte operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-		case 0xA0: // immediate
-			if (_ram) {
-				_indexY = operand;
-			}
+		case (byte) ADDRESSING_MODES_LDY::IMMEDIATE:
+			std::cout << "LDY #$" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
+
 			break;
-		case 0xA4: // zeropage
+
+		case (byte) ADDRESSING_MODES_LDY::ZEROPAGE:
+			std::cout << "LDY $" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
+
 			break;
-		case 0xB4: // zeropage, Y
+
+		case (byte) ADDRESSING_MODES_LDY::ZEROPAGE_X:
+			std::cout << "LDY ($" << std::setfill('0') << std::setw(2) << (int) operand << ", X)" << std::endl;
+
 			break;
+
 		default:
 			break;
 	}
 
 	updateState(_indexY);
+
+	std::cout.flags(f);
 }
 
-void CPU::ldy(byte opcode, word operand) {
+void CPU::LDY(byte opcode, word operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-		case 0xAC: // absolute
+		case (byte) ADDRESSING_MODES_LDY::ABSOLUTE:
+			std::cout << "LDY $" << std::setfill('0') << std::setw(4) << (int) operand << std::endl;
+
 			break;
-		case 0xBC: // absolute, Y
+
+		case (byte) ADDRESSING_MODES_LDY::ABSOLUTE_X:
+			std::cout << "LDY ($" << std::setfill('0') << std::setw(4) << (int) operand << ", X)" << std::endl;
+
 			break;
+
 		default:
 			break;
 	}
 
 	updateState(_indexY);
+
+	std::cout.flags(f);
 }
 
-void CPU::sta(byte opcode, byte operand) {
+void CPU::LSR(byte opcode) {}
+
+void CPU::LSR(byte opcode, byte operand) {}
+
+void CPU::LSR(byte opcode, word operand) {}
+
+void CPU::NOP(byte opcode) {}
+
+void CPU::ORA(byte opcode, byte operand) {}
+
+void CPU::ORA(byte opcode, word operand) {}
+
+void CPU::PHA(byte opcode) {}
+
+void CPU::PHP(byte opcode) {}
+
+void CPU::PLA(byte opcode) {}
+
+void CPU::PLP(byte opcode) {}
+
+void CPU::ROL(byte opcode) {}
+
+void CPU::ROL(byte opcode, byte operand) {}
+
+void CPU::ROL(byte opcode, word operand) {}
+
+void CPU::RTI(byte opcode) {}
+
+void CPU::RTS(byte opcode) {}
+
+void CPU::SBC(byte opcode, byte operand) {}
+
+void CPU::SBC(byte opcode, word operand) {}
+
+void CPU::SEC(byte opcode) {
+	setFlag(STATUS_FLAG::C);
+}
+
+void CPU::SED(byte opcode) {
+	setFlag(STATUS_FLAG::D);
+}
+
+void CPU::SEI(byte opcode) {
+	setFlag(STATUS_FLAG::I);
+}
+
+void CPU::STA(byte opcode, byte operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
 	switch (opcode) {
-		case 0x85: // zeropage
-			if (_ram) {
-				(*_ram)[(word) operand] = _accumulator;
-			}
+		case (byte) ADDRESSING_MODES_STA::ZEROPAGE:
+			std::cout << "STA $" << std::setfill('0') << std::setw(2) << (int) operand << std::endl;
+
 			break;
-		case 0x95: // zeropage, X
+
+		case (byte) ADDRESSING_MODES_STA::ZEROPAGE_X:
+			std::cout << "STA $" << std::setfill('0') << std::setw(2) << (int) operand << ", X" << std::endl;
+
 			break;
-		case 0x81: // (indirect, X)
+
+		case (byte)ADDRESSING_MODES_STA::ZEROPAGE_PRE_X:
+			std::cout << "STA ($" << std::setfill('0') << std::setw(2) << (int) operand << ", X)" << std::endl;
+
 			break;
-		case 0x91: // (indirect), Y
+
+		case (byte) ADDRESSING_MODES_STA::ZEROPAGE_POST_Y:
+			std::cout << "STA ($" << std::setfill('0') << std::setw(2) << (int) operand << "), Y" << std::endl;
+
 			break;
+
+		default:
+			break;
+	}
+
+	std::cout.flags(f);
+}
+
+void CPU::STA(byte opcode, word operand) { 
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
+	switch (opcode) {
+	case (byte) ADDRESSING_MODES_STA::ABSOLUTE:
+			std::cout << "STA $" << std::setfill('0') << std::setw(4) << (int) operand << std::endl;
+
+			break;
+
+		case (byte) ADDRESSING_MODES_STA::ABSOLUTE_X:
+			std::cout << "STA $" << std::setfill('0') << std::setw(4) << (int) operand << ", X" << std::endl;
+
+			break;
+
+		case (byte) ADDRESSING_MODES_STA::ABSOLUTE_Y:
+			std::cout << "STA $" << std::setfill('0') << std::setw(4) << (int) operand << ", Y" << std::endl;
+
+			break;
+
 		default:
 			break;
 	}
 }
 
-void CPU::sta(byte opcode, word operand) { 
-	switch (opcode) {
-		case 0x8D: // absolute
-			if (_ram) {
-				(*_ram)[operand] = _accumulator;
-			}
-			break;
-		case 0x9D: // absolute, X
-			break;
-		case 0x99: // absolute, Y
-			break;
-		default:
-			break;
-	}
+void CPU::STX(byte opcode, byte operand) {}
+
+void CPU::STX(byte opcode, word operand) {}
+
+void CPU::STY(byte opcode, byte operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
+
+	std::cout << std::hex << std::uppercase;
+
+	std::cout << "STY $" << std::setfill('0') << std::setw(4) << (int) operand << std::endl;
 }
 
-//void CPU::stx(byte opcode, word operand) {
-//	if (_ram) (*_ram)[address] = _indexX;
-//}
-//
-//void CPU::sty(byte opcode, word operand) {
-//	if (_ram) (*_ram)[address] = _indexY;
-//}
+void CPU::STY(byte opcode, word operand) {
+	std::ios_base::fmtflags f(std::cout.flags());
 
-void CPU::clc() { unsetFlag(STATUS_FLAG::C); }
-void CPU::sec() { setFlag(STATUS_FLAG::C); }
+	std::cout << std::hex << std::uppercase;
 
-void CPU::cli() { unsetFlag(STATUS_FLAG::I); }
-void CPU::sei() { setFlag(STATUS_FLAG::I); }
+	std::cout << "STY $" << std::setfill('0') << std::setw(4) << (int)operand << std::endl;
+}
 
-void CPU::cld() { unsetFlag(STATUS_FLAG::D); }
-void CPU::sed() { setFlag(STATUS_FLAG::D); }
+void CPU::TAX(byte opcode) {
+	_indexX = _accumulator;
+}
 
-void CPU::clv() { unsetFlag(STATUS_FLAG::V); }
+void CPU::TAY(byte opcode) {
+	_indexY = _accumulator;
+}
 
-void CPU::tax() { _indexX = _accumulator; }
-void CPU::tay() { _indexY = _accumulator; }
-void CPU::tsx() { _indexX = _stackPointer; }
-void CPU::txa() { _accumulator = _indexX; }
-void CPU::txs() { _stackPointer = _indexX; }
-void CPU::tya() { _accumulator = _indexY; }
+void CPU::TSX(byte opcode) {
+	_indexX = _stackPointer;
+}
 
-//void CPU::dec(byte address) { if (_ram) --(*_ram)[(word)address]; }
-//void CPU::dec(word address) { if (_ram) --(*_ram)[address]; }
+void CPU::TXA(byte opcode) {
+	_accumulator = _indexX;
+}
 
-void CPU::setFlag(STATUS_FLAG flag) { _statusFlags ^= (byte) flag; }
-void CPU::unsetFlag(STATUS_FLAG flag) { _statusFlags &= ~((byte) flag); }
+void CPU::TXS(byte opcode) {
+	_stackPointer = _indexX;
+}
+
+void CPU::TYA(byte opcode) {
+	_accumulator = _indexY;
+}
+
+void CPU::setFlag(STATUS_FLAG flag) {
+	_statusFlags ^= (byte) flag;
+}
+
+void CPU::unsetFlag(STATUS_FLAG flag) {
+	_statusFlags &= ~((byte) flag);
+}
+
+void CPU::setAddressBusFromDataBusPreIndexed() {
+	_dataBus += _indexX; // pre add Y to the high byte in the data bus
+
+	_addressBus = _dataBus; // transfer the instruction's operand from the data bus to the address bus
+	_dataBus = (*_ram)[_addressBus]; // get the low byte from the address stored in the address bus
+	_addressBus |= ((word)(~0xFF) & ((word)(_dataBus) << 8)); // shift the newly loaded low byte in the address bus (low byte area)
+
+	_dataBus = (byte)(_addressBus); // retransfer the high byte of the address bus to the data bus
+	_dataBus++; // add one to the data bus to get the memory address of the high byte
+
+	_addressBus |= 0xFF; // prepare the address high byte to receive the new address stored in the data bus
+	_addressBus &= (word)(~0xFF) | (word)(_dataBus); // transfer the data bus value to the high byte of the address bus
+
+	_dataBus = (*_ram)[(byte)_addressBus]; // get the high byte of the address stored in memory from the high byte in the address bus
+
+	_addressBus &= (word)(0xFF00); // prepare the high byte of the address bus to receive the high byte of the address stored in memory currently in the databus
+	_addressBus |= _dataBus; // transfer the high byte from the data bus to the high byte of the address bus
+}
+
+void CPU::setAddressBusFromDataBusPostIndexed() {
+	_addressBus = _dataBus; // transfer the instruction's operand from the data bus to the address bus
+	_dataBus = (*_ram)[_addressBus]; // get the low byte from the address stored in the address bus
+	_addressBus |= ((word)(~0xFF) & ((word)(_dataBus) << 8)); // shift the newly loaded low byte in the address bus (low byte area)
+
+	_dataBus = (byte)(_addressBus); // retransfer the high byte of the address bus to the data bus
+	_dataBus++; // add one to the data bus to get the memory address of the high byte
+
+	_addressBus |= 0xFF; // prepare the address high byte to receive the new address stored in the data bus
+	_addressBus &= (word)(~0xFF) | (word)(_dataBus); // transfer the data bus value to the high byte of the address bus
+
+	_dataBus = (*_ram)[(byte)_addressBus]; // get the high byte of the address stored in memory from the high byte in the address bus
+	_dataBus += _indexY; // post add Y to the high byte in the data bus
+
+	_addressBus &= (word)(0xFF00); // prepare the high byte of the address bus to receive the high byte of the address stored in memory currently in the databus
+	_addressBus |= _dataBus; // transfer the high byte from the data bus to the high byte of the address bus
+}
