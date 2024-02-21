@@ -67,30 +67,21 @@ void loadRAM(std::vector<byte>& ram, std::string filepath) {
 int main(int argc, char* argv[]) {
 	std::vector<byte> ram(MAX_RAM_SIZE, (byte) 0x00);
 	
-	std::vector<byte> rom(MAX_ROM_SIZE, (byte) 0x00);
+	std::vector<byte> rom(MAX_ROM_SIZE, (byte) 0xEA);
 
-	// LDA $057D
-	rom[0x0000] = 0xAD;
-	rom[0x0001] = 0x7D;
-	rom[0x0002] = 0x05;
+	rom[0x0000] = 0xA9;
+	rom[0x0001] = 0x76;
 
-	// reset vector
 	rom[0x7FFC] = 0x00;
 	rom[0x7FFD] = 0x80;
 		
 	loadRAM(ram, "C:/Users/ajvp/Desktop/random_bytes_dump");
 
-	CPU cpu(&ram);
+	CPU cpu(&ram, (word) 0x0000, (word) MAX_RAM_SIZE, &rom, (word) 0x8000, (word) MAX_ROM_SIZE);
 
-	for (byte romByte : rom) {
+	cpu.displayProgramCounter();
 
-	}
-
-	cpu.displayRegisters();
-	cpu.displayBuses();
-
-	displayRAMPage(ram, 0x00);
-	displayRAMPage(ram, 0x07);
+	cpu.run();
 
 	return 0;
 }

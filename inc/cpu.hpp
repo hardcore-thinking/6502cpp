@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <functional>
 
 #include "types.hpp"
 #include "addressing_mode.hpp"
@@ -28,8 +29,10 @@ enum class DATA_BUS_OPERATION : bool {
 constexpr int MAX_ADDRESSABLE = 0x10000;
 
 class CPU {
+	using Instruction = void (CPU::*)(void);
+
 	public:
-		CPU(std::vector<byte>* ram = nullptr, std::vector<byte>* rom = nullptr);
+		CPU(std::vector<byte>* ram, word ramStart, word ramSize, std::vector<byte>* rom, word romStart, word romSize);
 
 		// Debug log function
 		void displayStatus() const;
@@ -39,217 +42,202 @@ class CPU {
 		void displayProgramCounter() const;
 		void displayState() const;
 
-		void updateState(byte value);
+		void displayMap() const;
+
+		void run();
 
 	private:
+		void fetchAndExecute();
+
+		void updateState(byte value);
+
 		// ADd with Carry
-		void ADC(byte opcode, byte operand);
-		void ADC(byte opcode, word operand);
+		void ADC();
 
 		// AND
-		void AND(byte opcode, byte operand);
-		void AND(byte opcode, word operand);
+		void AND();
 
 		// Arithmetical Shift Left
-		void ASL(byte opcode);
-		void ASL(byte opcode, byte operand);
-		void ASL(byte opcode, word operand);
+		void ASL();
 
 		// Branch on Carry Clear
-		void BCC(byte opcode);
+		void BCC();
 
 		// Branch on Carry Set
-		void BCS(byte opcode);
+		void BCS();
 
 		// Branch on EQual
-		void BEQ(byte opcode);
+		void BEQ();
 
 		// BIT
-		void BIT(byte opcode, byte operand);
-		void BIT(byte opcode, word operand);
+		void BIT();
 
 		// Branch on MInus
-		void BMI(byte opcode);
+		void BMI();
 
 		// Branch on Not Equal
-		void BNE(byte opcode);
+		void BNE();
 
 		// Branch on PLus
-		void BPL(byte opcode);
+		void BPL();
 
 		// BReaK
-		void BRK(byte opcode);
+		void BRK();
 
 		// Branch on oVerflow Clear
-		void BVC(byte opcode);
+		void BVC();
 
 		// Branch on oVerflow Set
-		void BVS(byte opcode);
+		void BVS();
 
 		// CLear Carry
-		void CLC(byte opcode);
+		void CLC();
 
 		// CLear Decimal
-		void CLD(byte opcode);
+		void CLD();
 
 		// CLear Interrupt
-		void CLI(byte opcode); 
+		void CLI(); 
 
 		// CLear oVerflow
-		void CLV(byte opcode);
+		void CLV();
 
 		// CoMPare
-		void CMP(byte opcode, byte operand);
-		void CMP(byte opcode, word operand);
+		void CMP();
 
 		// ComPare X
-		void CPX(byte opcode, byte operand);
-		void CPX(byte opcode, word operand);
+		void CPX();
 
 		// ComPare Y
-		void CPY(byte opcode, byte operand);
-		void CPY(byte opcode, word operand);
+		void CPY();
 
 		// DECrement
-		void DEC(byte opcode, byte operand);
-		void DEC(byte opcode, word operand);
+		void DEC();
 
 		// DEcrement X
-		void DEX(byte opcode);
+		void DEX();
 		
 		// DEcrement Y
-		void DEY(byte opcode);
+		void DEY();
 
 		// Exclusif OR
-		void EOR(byte opcode, byte operand);
-		void EOR(byte opcode, word operand);
+		void EOR();
 
 		// INCrement
-		void INC(byte opcode, byte operand);
-		void INC(byte opcode, word operand);
+		void INC();
 
 		// INcrement X
-		void INX(byte opcode);
+		void INX();
 
 		// INcrement Y
-		void INY(byte opcode);
+		void INY();
 
 		// JuMP
-		void JMP(byte opcode, word operand);
+		void JMP();
 
 		// Jump to SubRoutine
-		void JSR(byte opcode, word operand);
+		void JSR();
 
 		// LoaD A
-		void LDA(byte opcode, byte operand);
-		void LDA(byte opcode, word operand);
+		void LDA();
 
 		// LoaD X
-		void LDX(byte opcode, byte operand);
-		void LDX(byte opcode, word operand);
+		void LDX();
 
 		// LoaD Y
-		void LDY(byte opcode, byte operand);
-		void LDY(byte opcode, word operand);
+		void LDY();
 
 		// Logical Shift Right
-		void LSR(byte opcode);
-		void LSR(byte opcode, byte operand);
-		void LSR(byte opcode, word operand);
+		void LSR();
 
 		// No OPeration
-		void NOP(byte opcode);
+		void NOP();
 
 		// ORA
-		void ORA(byte opcode, byte operand);
-		void ORA(byte opcode, word operand);
+		void ORA();
 
 		// PusH Accumulator
-		void PHA(byte opcode);
+		void PHA();
 
 		// PusH Processor status
-		void PHP(byte opcode);
+		void PHP();
 
 		// PulL Accumulator
-		void PLA(byte opcode);
+		void PLA();
 
 		// PulL Processor status
-		void PLP(byte opcode);
+		void PLP();
 
 		// ROtate Left
-		void ROL(byte opcode);
-		void ROL(byte opcode, byte operand);
-		void ROL(byte opcode, word operand);
+		void ROL();
 
 		// ROtate Right
-		void ROR(byte opcode);
-		void ROR(byte opcode, byte operand);
-		void ROR(byte opcode, word operand);
+		void ROR();
 
 		// ReTurn from Interrupt
-		void RTI(byte opcode);
+		void RTI();
 
 		// ReTurn from Subroutine
-		void RTS(byte opcode);
+		void RTS();
 
 		// SuBtract with Carry
-		void SBC(byte opcode, byte operand);
-		void SBC(byte opcode, word operand);
+		void SBC();
 
 		// SEt Carry 
-		void SEC(byte opcode);
+		void SEC();
 
 		// SEt Decimal
-		void SED(byte opcode);
+		void SED();
 
 		// SEt Interrupt
-		void SEI(byte opcode);
+		void SEI();
 
 		// STore A
-		void STA(byte opcode, byte operand);
-		void STA(byte opcode, word operand);
+		void STA();
 
 		// STore X
-		void STX(byte opcode, byte operand);
-		void STX(byte opcode, word operand);
+		void STX();
 		
 		// STore Y
-		void STY(byte opcode, byte operand);
-		void STY(byte opcode, word operand);
+		void STY();
 
 		// Transfer A to X
-		void TAX(byte opcode);
+		void TAX();
 
 		// Transfer A ot Y
-		void TAY(byte opcode);
+		void TAY();
 
 		// Transfer Stack pointer to X
-		void TSX(byte opcode);
+		void TSX();
 
 		// Transfer X to A
-		void TXA(byte opcode);
+		void TXA();
 
 		// Transfer X to Stack pointer
-		void TXS(byte opcode);
+		void TXS();
 
 		// Transfer Y to A
-		void TYA(byte opcode);
+		void TYA();
 
 		void setFlag(STATUS_FLAG flag);
 		void unsetFlag(STATUS_FLAG flag);
 
+		void increaseProgramCounter();
+
 		void setAddressBusFromDataBusPreIndexed();
 		void setAddressBusFromDataBusPostIndexed();
 
+		void setProgramCounterFromResetVector();
+
 	private:
-		// Pins :
+		// Pins
 		// (Doesn't include RDY, VCC and VSS since this program assume 
 		// the CPU is always running the moment it's ran)
 		bool _readWrite         = (bool) DATA_BUS_OPERATION::READ; // 0 : Write / 1 : Read
 		byte _dataBus           = (byte) 0x00;  // D0-D7
 		word _addressBus        = (word) 0x0000; // A0-A15
 
-		// Internals :
+		// Internals
 		byte _accumulator       = (byte) 0x00; // A
 		byte _indexX            = (byte) 0x00; // X
 		byte _indexY            = (byte) 0x00; // Y
@@ -262,10 +250,17 @@ class CPU {
 		word _res = (word) 0x0000; // RESet vector
 		word _irq = (word) 0x0000; // Interrupt ReQuest vector
 
+		// Memory map
+		std::vector<byte> _map;
 
-		// Links :
-		std::vector<byte>* _ram = nullptr;
-		std::vector<byte>* _rom = nullptr;
+		// Links
+		word _ram     = (word) 0x0000;
+		word _ramSize = (word) 0x0000;
+		word _rom     = (word) 0x0000;
+		word _romSize = (word) 0x0000;
+		
+		// Instructions
+		std::vector<Instruction> _instructionsMatrix;
 };
 
 #endif // CPU_HPP

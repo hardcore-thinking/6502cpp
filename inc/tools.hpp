@@ -4,5 +4,6 @@
 #include "types.hpp"
 
 word getBigEndianAddress(word address);
+word getLittleEndianAddress(word address);
 
 #endif // TOOLS_HPP

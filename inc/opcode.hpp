@@ -1,0 +1,43 @@
+#ifndef OPCODE_HPP
+#define OPCODE_HPP
+
+#include "types.hpp"
+
+constexpr byte OPCODE_MASK = 0b11100011;
+
+enum class FULL_ADDRESSING_MODES_SET_INSTRUCTIONS : byte {
+	ORA = 0b00000001, // $01
+	AND = 0b00100001, // $21
+	EOR = 0b01000001, // $41
+	ADC = 0b01100001, // $61
+	LDA = 0b10100001, // $A1
+	CMP = 0b11000001, // $C1
+	SBC = 0b11100001  // $E1
+};
+
+enum class PARTIAL_ADDRESSING_MODES_SET_INSTRUCTIONS : byte {
+	ASL = 0b00000010, // $02
+	BIT = 0b00100000, // $20
+	ROL = 0b00100010, // $22
+	LSR = 0b01000010, // $42
+	ROR = 0b01100010, // $62
+	STY = 0b10000000, // $80
+	STA = 0b10000001, // $81
+	STX = 0b10000010, // $82
+	LDY = 0b10100000, // $A0
+	LDX = 0b10100010, // $A2
+	CPY = 0b11000000, // $C0
+	DEC = 0b11000010, // $C2
+	CPX = 0b11100000, // $E0
+	INC = 0b11100010  // $E2
+};
+
+enum class JUMP_AND_RETURN_INSTRUCTIONS : byte {
+	JSR          = 0b00100000, // $20
+	RTI          = 0b01000000, // $40
+	JMP_ABSOLUTE = 0b01001100, // $4C
+	RTS          = 0b01100000, // $60
+	JMP_INDIRECT = 0b01101100  // $6C
+};
+
+#endif // OPCODE_HPP
