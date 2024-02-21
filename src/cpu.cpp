@@ -279,21 +279,44 @@ void CPU::JSR() {
 }
 
 void CPU::LDA() {
-	std::cout << "LDA" << std::endl;
-
 	std::ios_base::fmtflags f(std::cout.flags());
 
 	std::cout << std::hex << std::uppercase;
 
-	switch (_dataBus & ADDRESSING_MODE_MASK) {}
+	switch (_dataBus & ADDRESSING_MODE_MASK) {
+		case (byte) ADDRESSING_MODES::ZEROPAGE_PRE_X:
+			break;
+		case (byte) ADDRESSING_MODES::ZEROPAGE:
+			break;
+		case (byte) ADDRESSING_MODES::IMMEDIATE:
+			_addressBus = getLittleEndianAddress(getBigEndianAddress(_programCounter) + 1);
+			_dataBus = _map[_addressBus];
+			_accumulator = _dataBus;
+
+			incrementProgramCounter(); // opcode
+			incrementProgramCounter(); // operand
+
+			std::cout << "LDA #$" << std::setfill('0') << std::setw(2) << (int) _dataBus <<  std::endl;
+
+			displayRegisters();
+			break;
+		case (byte) ADDRESSING_MODES::ABSOLUTE:
+			break;
+		case (byte) ADDRESSING_MODES::ZEROPAGE_POST_Y:
+			break;
+		case (byte) ADDRESSING_MODES::ZEROPAGE_X:
+			break;
+		case (byte) ADDRESSING_MODES::ABSOLUTE_Y:
+			break;
+		case (byte) ADDRESSING_MODES::ABSOLUTE_X:
+			break;
+		default:
+			break;
+	}
 
 	updateState(_accumulator);
 
 	std::cout.flags(f);
-
-	for (int i = 0; i < 3; i++) {
-		increaseProgramCounter();
-	}
 }
 
 void CPU::LDX() {
@@ -331,7 +354,7 @@ void CPU::LSR() {
 void CPU::NOP() {
 	std::cout << "NOP" << std::endl;
 
-	increaseProgramCounter();
+	incrementProgramCounter();
 }
 
 void CPU::ORA() {
@@ -462,7 +485,7 @@ void CPU::unsetFlag(STATUS_FLAG flag) {
 	_statusFlags &= ~((byte) flag);
 }
 
-void CPU::increaseProgramCounter() {
+void CPU::incrementProgramCounter() {
 	_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) + (word)(0x01));
 }
 

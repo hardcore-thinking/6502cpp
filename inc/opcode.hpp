@@ -3,8 +3,6 @@
 
 #include "types.hpp"
 
-constexpr byte OPCODE_MASK = 0b11100011;
-
 enum class FULL_ADDRESSING_MODES_SET_INSTRUCTIONS : byte {
 	ORA = 0b00000001, // $01
 	AND = 0b00100001, // $21

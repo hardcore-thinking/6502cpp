@@ -79,8 +79,6 @@ int main(int argc, char* argv[]) {
 
 	CPU cpu(&ram, (word) 0x0000, (word) MAX_RAM_SIZE, &rom, (word) 0x8000, (word) MAX_ROM_SIZE);
 
-	cpu.displayProgramCounter();
-
 	cpu.run();
 
 	return 0;

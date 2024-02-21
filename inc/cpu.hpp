@@ -222,7 +222,7 @@ class CPU {
 		void setFlag(STATUS_FLAG flag);
 		void unsetFlag(STATUS_FLAG flag);
 
-		void increaseProgramCounter();
+		void incrementProgramCounter();
 
 		void setAddressBusFromDataBusPreIndexed();
 		void setAddressBusFromDataBusPostIndexed();
