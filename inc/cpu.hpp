@@ -270,6 +270,8 @@ class CPU {
 		inline void setDataBusFromByteAtPC();
 		inline void setDataBusFromAddressBus();
 
+		void setAddressBusFromTwoNextBytesInROM();
+
 		void setProgramCounterFromResetVector();
 
 	private:

@@ -22,6 +22,8 @@ void loadROM(std::vector<byte>& rom, std::string filepath) {
 		const std::streampos fileSize = rom_load.tellg();
 		rom_load.seekg(0, std::ios::beg);
 
+		//rom_load.seekg(0x8000);
+
 		rom_load.read(reinterpret_cast<char*>(rom.data()), static_cast<std::streamsize>(MAX_ROM_SIZE));
 	}
 }
@@ -30,20 +32,17 @@ int main(int argc, char* argv[]) {
 	std::vector<byte> ram(MAX_RAM_SIZE, (byte) 0x00);
 	
 	std::vector<byte> rom(MAX_ROM_SIZE, (byte) 0x00);
-		
+
 	loadRAM(ram, "C:/Users/ajvp/Desktop/Misc/random_bytes_dump");
-	loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom");
+	loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom1");
 	//loadROM(rom, "C:/Users/ajvp/Desktop/Misc/smb1.bin");
 
 	CPU cpu(&ram, (word) 0x0000, (word) MAX_RAM_SIZE, &rom, (word) 0x8000, (word) MAX_ROM_SIZE);
 
-	cpu.displayRAMPage(0x00);
-	std::cout << std::endl;
-
 	cpu.displayROM(true);
 	std::cout << std::endl;
 
-	cpu.run(false);
+	cpu.run(true);
 
 	return 0;
 }
