@@ -26,7 +26,20 @@ enum class DATA_BUS_OPERATION : bool {
 	READ  = true
 };
 
+// Size of various memory map areas
 constexpr int MAX_ADDRESSABLE = 0x10000;
+constexpr int MAX_RAM_SIZE    = 0x800;
+constexpr int MAX_PAGE_SIZE   = 0x100;
+constexpr int MAX_STACK_SIZE  = 0x100;
+constexpr int MAX_ROM_SIZE    = 0x8000;
+
+// Vectors nibbles
+constexpr word NMI_LOW    = 0xFFFA;
+constexpr word NMI_HIGH   = 0xFFFB;
+constexpr word RESET_LOW  = 0xFFFC;
+constexpr word RESET_HIGH = 0xFFFD;
+constexpr word IRQ_LOW    = 0xFFFE;
+constexpr word IRQ_HIGH   = 0xFFFF;
 
 class CPU {
 	using Instruction = void (CPU::*)(void);
@@ -36,15 +49,42 @@ class CPU {
 
 		// Debug log function
 		void displayStatus() const;
+
+		// Registers specific logs
+		void displayAccumulator() const;
+		void displayIndexX() const;
+		void displayIndexY() const;
 		void displayRegisters() const;
+
+		// Stack pointer log
 		void displayStackPointer() const;
+		
+		// Buses specific logs
+		void displayAddressBus() const;
+		void displayDataBus() const;
 		void displayBuses() const;
+		
+		// Program counter log
 		void displayProgramCounter() const;
+
+		// All logs at once
 		void displayState() const;
 
+		// RAM specific display
+		void displayRAM() const;
+		void displayZeroPage() const;
+		void displayRAMPage(byte page) const;
+		void displayStack() const;
+		
+		// ROM display
+		void displayROM(bool stopOnBreak) const;
+		void displayInstructionAsBytes(size_t bytesN) const;
+
+		// Map display
 		void displayMap() const;
 
-		void run();
+		// Run execution of the CPU
+		void run(bool stepByStep);
 
 	private:
 		void fetchAndExecute();
@@ -222,10 +262,13 @@ class CPU {
 		void setFlag(STATUS_FLAG flag);
 		void unsetFlag(STATUS_FLAG flag);
 
+		void useFullAddressingModeSet();
+		void usePartialAddressingModeSet(INDEX index = INDEX::UNUSED);
+
 		void incrementProgramCounter();
 
-		void setAddressBusFromDataBusPreIndexed();
-		void setAddressBusFromDataBusPostIndexed();
+		inline void setDataBusFromByteAtPC();
+		inline void setDataBusFromAddressBus();
 
 		void setProgramCounterFromResetVector();
 
@@ -254,12 +297,14 @@ class CPU {
 		std::vector<byte> _map;
 
 		// Links
-		word _ram     = (word) 0x0000;
-		word _ramSize = (word) 0x0000;
-		word _rom     = (word) 0x0000;
-		word _romSize = (word) 0x0000;
+		word _ram         = (word) 0x0000;
+		word _ramSize     = (word) 0x0000;
+		word const _stack = (word) 0x0100;
+		word _rom         = (word) 0x0000;
+		word _romSize     = (word) 0x0000;
 		
 		// Instructions
+		std::vector<std::string> _instructionsNames;
 		std::vector<Instruction> _instructionsMatrix;
 };
 

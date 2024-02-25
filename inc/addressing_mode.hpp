@@ -1,5 +1,5 @@
-#ifndef ADDRESSING_MODE_H
-#define ADDRESSING_MODE_H
+#ifndef ADDRESSING_MODE_HPP
+#define ADDRESSING_MODE_HPP
 
 #include "types.hpp"
 
@@ -8,32 +8,50 @@ Form of an instruction : AAA BBB CC
 
 - AAA and CC are the opcode of the instruction
 - BBB is the addressing mode
-
-In the end we have :
-
-- ZEROPAGE_PRE_X   -> ... 000 ..
-- ZEROPAGE         -> ... 001 ..
-- IMMEDIATE        -> ... 010 ..
-- ABSOLUTE         -> ... 011 ..
-- ZEROPAGE_POST_Y  -> ... 100 ..
-- ZEROPAGE_X       -> ... 101 ..
-- ABSOLUTE_Y       -> ... 110 ..
-- ABSOLUTE_X       -> ... 111 ..
 */
 
-#include "types.hpp"
+constexpr byte ADDRESSING_MODE_MASK = 0b00011100; // $1C
+constexpr byte OPCODE_MASK          = 0b11100011; // $E3
 
-constexpr byte ADDRESSING_MODE_MASK = 0b00011100;
-
-enum class ADDRESSING_MODES {
-	ZEROPAGE_PRE_X   = 0b00000000,
-	ZEROPAGE         = 0b00000100,
-	IMMEDIATE        = 0b00001000,
-	ABSOLUTE         = 0b00001100,
-	ZEROPAGE_POST_Y  = 0b00010000,
-	ZEROPAGE_X       = 0b00010100,
-	ABSOLUTE_Y       = 0b00011000,
-	ABSOLUTE_X       = 0b00011100
+// For the following, these 8 instructions are included : 
+// ADC, AND, CMP, EOR, LDA, ORA, SBC (STA is also included as an exception since it only lacks IMMEDIATE mode)
+enum class FULL_ADDRESSING_MODES_SET : byte {
+	ZEROPAGE_PRE_X   = 0b00000000, // $00
+	ZEROPAGE         = 0b00000100, // $04
+	IMMEDIATE        = 0b00001000, // $08
+	ABSOLUTE         = 0b00001100, // $0C
+	ZEROPAGE_POST_Y  = 0b00010000, // $10
+	ZEROPAGE_X       = 0b00010100, // $14
+	ABSOLUTE_Y       = 0b00011000, // $18
+	ABSOLUTE_X       = 0b00011100  // $1C
 };
 
-#endif // ADDRESSING_MODE_H
+// For the following, these 13 instructions are included : 
+// ASL (X), BIT (_), CPX (_), CPY (_), DEC (X), INC (X), LDX (Y), LDY (X), LSR (X), ROL (X), ROR (X), STX (Y), STY (X)
+enum class PARTIAL_ADDRESSING_MODES_SET : byte {
+	IMMEDIATE        = 0b00000000, // $00
+	ZEROPAGE         = 0b00000100, // $04
+	ACCUMULATOR      = 0b00001000, // $08
+	ABSOLUTE         = 0b00001100, // $0C
+	ZEROPAGE_INDEXED = 0b00010100, // $14, could be X or Y depending on the instruction used
+	ABSOLUTE_INDEXED = 0b00011100  // $1C, could be X or Y depending on the instruction used
+};
+
+enum class JMP_ADDRESSING_MODES : byte {
+	ABSOLUTE         = 0x4C,
+	INDIRECT         = 0x6C
+};
+
+enum class INDEX : byte {
+	UNUSED,
+	INDEX_X,
+	INDEX_Y
+};
+
+enum class BYTES_USED : size_t {
+	ONE_BYTE = 1,
+	TWO_BYTES,
+	THREE_BYTES
+};
+
+#endif // ADDRESSING_MODE_HPP
