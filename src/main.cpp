@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 	cpu.displayROM(true);
 	std::cout << std::endl;
 
-	cpu.run(true);
+	cpu.run(false);
 
 	return 0;
 }

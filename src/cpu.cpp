@@ -627,6 +627,7 @@ void CPU::JMP() {
 		case (byte) JMP_ADDRESSING_MODES::INDIRECT:
 			setAddressBusFromTwoNextBytesInROM();
 			std::cout << "JMP ($" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ")" << std::endl;
+			
 			break;
 
 		default:
