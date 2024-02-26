@@ -49,6 +49,7 @@ class CPU {
 
 		// Debug log function
 		void displayStatus() const;
+		void displayStatusFlag(STATUS_FLAG flag);
 
 		// Registers specific logs
 		void displayAccumulator() const;
@@ -273,6 +274,11 @@ class CPU {
 		inline void setDataBusFromAddressBus();
 
 		void setAddressBusFromTwoNextBytesInROM();
+
+		// checkSet checks if the function must check for the flag to be set or for it to be unset
+		// true : isSet(flag)
+		// false : !isSet(flag)
+		void checkBranching(STATUS_FLAG flag, bool checkSet);
 
 		void setProgramCounterFromResetVector();
 
