@@ -262,6 +262,8 @@ class CPU {
 		void setFlag(STATUS_FLAG flag);
 		void unsetFlag(STATUS_FLAG flag);
 
+		bool isSet(STATUS_FLAG flag);
+
 		void useFullAddressingModeSet();
 		void usePartialAddressingModeSet(INDEX index = INDEX::UNUSED);
 

@@ -294,7 +294,12 @@ void CPU::displayMap() const {
 void CPU::run(bool stepByStep) {
 	while (_map[getBigEndianAddress(_programCounter)] != 0x00) {
 		fetchAndExecute();
-		if (stepByStep) char _ = getchar(); // wait for enter press
+		if (stepByStep) {
+			char _ = getchar(); // wait for enter press
+		}
+		else {
+			std::cout << std::endl;
+		}
 	}
 }
 
@@ -364,7 +369,7 @@ void CPU::BCC() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC();
 
-	std::cout << "BCC $" << std::setfill('0') << std::setw(2) << (int)_dataBus << std::endl;
+	std::cout << "BCC $" << std::setfill('0') << std::setw(2) << (int)_dataBus;
 
 	std::cout.flags(f);
 
@@ -381,7 +386,7 @@ void CPU::BCS() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC();
 
-	std::cout << "BCS $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+	std::cout << "BCS $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
 
@@ -394,14 +399,32 @@ void CPU::BEQ() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
-	incrementProgramCounter();
-	setDataBusFromByteAtPC();
+	if (isSet(STATUS_FLAG::Z)) {
+		incrementProgramCounter();
+		setDataBusFromByteAtPC();
 
-	std::cout << "BEQ $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+		updateState(_dataBus);
+
+		if (isSet(STATUS_FLAG::N)) {
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus));
+		}
+
+		else {
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) + _dataBus);
+			displayProgramCounter();
+		}
+	}
+
+	else {
+		incrementProgramCounter();
+		setDataBusFromByteAtPC();
+
+		_programCounter += (word) BYTES_USED::TWO_BYTES;
+	}
+
+	std::cout << "BEQ $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
-
-	incrementProgramCounter();
 }
 
 void CPU::BIT() {
@@ -419,7 +442,7 @@ void CPU::BMI() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC();
 
-	std::cout << "BMI $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+	std::cout << "BMI $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
 
@@ -431,15 +454,33 @@ void CPU::BNE() {
 	std::cout << std::hex << std::uppercase;
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
+	
+	if (!isSet(STATUS_FLAG::Z)) {
+		incrementProgramCounter();
+		setDataBusFromByteAtPC();
 
-	incrementProgramCounter();
-	setDataBusFromByteAtPC();
+		updateState(_dataBus);
 
-	std::cout << "BNE $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+		if (isSet(STATUS_FLAG::N)) {
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus));
+		}
+
+		else {
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) + _dataBus);
+			displayProgramCounter();
+		}
+	}
+
+	else {
+		incrementProgramCounter();
+		setDataBusFromByteAtPC();
+
+		_programCounter += (word) BYTES_USED::TWO_BYTES;
+	}
+
+	std::cout << "BNE $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
-
-	incrementProgramCounter();
 }
 
 void CPU::BPL() {
@@ -451,7 +492,7 @@ void CPU::BPL() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC();
 
-	std::cout << "BPL $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+	std::cout << "BPL $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
 
@@ -459,7 +500,7 @@ void CPU::BPL() {
 }
 
 void CPU::BRK() {
-	std::cout << "BRK" << std::endl;
+	std::cout << "BRK";
 
 	incrementProgramCounter();
 }
@@ -473,7 +514,7 @@ void CPU::BVC() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC();
 
-	std::cout << "BVC $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+	std::cout << "BVC $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
 
@@ -489,7 +530,7 @@ void CPU::BVS() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC();
 
-	std::cout << "BVS $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+	std::cout << "BVS $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 	std::cout.flags(f);
 
@@ -499,7 +540,7 @@ void CPU::BVS() {
 void CPU::CLC() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "CLC" << std::endl;
+	std::cout << "CLC";
 
 	unsetFlag(STATUS_FLAG::C);
 
@@ -509,7 +550,7 @@ void CPU::CLC() {
 void CPU::CLD() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "CLD" << std::endl;
+	std::cout << "CLD";
 
 	unsetFlag(STATUS_FLAG::D);
 
@@ -519,7 +560,7 @@ void CPU::CLD() {
 void CPU::CLI() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "CLI" << std::endl;
+	std::cout << "CLI";
 
 	unsetFlag(STATUS_FLAG::I);
 
@@ -529,7 +570,7 @@ void CPU::CLI() {
 void CPU::CLV() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "CLV" << std::endl;
+	std::cout << "CLV";
 
 	unsetFlag(STATUS_FLAG::V);
 
@@ -545,11 +586,19 @@ void CPU::CMP() {
 void CPU::CPX() {
 	usePartialAddressingModeSet();
 
+	_dataBus = _indexX - _dataBus;
+
+	updateState(_dataBus);
+
 	incrementProgramCounter();
 }
 
 void CPU::CPY() {
 	usePartialAddressingModeSet();
+
+	_dataBus = _indexY - _dataBus;
+
+	updateState(_dataBus);
 
 	incrementProgramCounter();
 }
@@ -563,7 +612,7 @@ void CPU::DEC() {
 void CPU::DEX() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "DEX" << std::endl;
+	std::cout << "DEX";
 
 	--_indexX;
 
@@ -573,7 +622,7 @@ void CPU::DEX() {
 void CPU::DEY() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "DEY" << std::endl;
+	std::cout << "DEY";
 	
 	--_indexY;
 
@@ -595,7 +644,7 @@ void CPU::INC() {
 void CPU::INX() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "INX" << std::endl;
+	std::cout << "INX";
 
 	++_indexX;
 
@@ -605,7 +654,7 @@ void CPU::INX() {
 void CPU::INY() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "INY" << std::endl;
+	std::cout << "INY";
 
 	++_indexY;
 
@@ -621,12 +670,12 @@ void CPU::JMP() {
 	switch (_dataBus) {
 		case (byte) JMP_ADDRESSING_MODES::ABSOLUTE:
 			setAddressBusFromTwoNextBytesInROM();
-			std::cout << "JMP $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << std::endl;
+			std::cout << "JMP $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus);
 			break;
 
 		case (byte) JMP_ADDRESSING_MODES::INDIRECT:
 			setAddressBusFromTwoNextBytesInROM();
-			std::cout << "JMP ($" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ")" << std::endl;
+			std::cout << "JMP ($" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ")";
 			
 			break;
 
@@ -653,13 +702,17 @@ void CPU::JSR() {
 	setDataBusFromByteAtPC(); // get operand high byte
 	_addressBus |= _dataBus;
 
-	std::cout << "JSR $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << std::endl;
+	std::cout << "JSR $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus);
+
+	_programCounter = _addressBus;
 
 	std::cout.flags(f);
 }
 
 void CPU::LDA() {
 	useFullAddressingModeSet();
+
+	_accumulator = _dataBus;
 
 	updateState(_accumulator);
 
@@ -669,6 +722,8 @@ void CPU::LDA() {
 void CPU::LDX() {
 	usePartialAddressingModeSet(INDEX::INDEX_Y);
 
+	_indexX = _dataBus;
+
 	updateState(_indexX);
 
 	incrementProgramCounter();
@@ -676,6 +731,8 @@ void CPU::LDX() {
 
 void CPU::LDY() {
 	usePartialAddressingModeSet(INDEX::INDEX_X);
+
+	_indexY = _dataBus;
 
 	updateState(_indexY);
 
@@ -691,7 +748,7 @@ void CPU::LSR() {
 void CPU::NOP() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "NOP" << std::endl;
+	std::cout << "NOP";
 
 	incrementProgramCounter();
 }
@@ -705,7 +762,7 @@ void CPU::ORA() {
 void CPU::PHA() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "PHA" << std::endl;
+	std::cout << "PHA";
 
 	_addressBus = (word) _stackPointer;
 	_map[(word)(_stack + _addressBus)] = _accumulator;
@@ -718,7 +775,7 @@ void CPU::PHA() {
 void CPU::PHP() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "PHP" << std::endl;
+	std::cout << "PHP";
 
 	_addressBus = (word) _stackPointer;
 	_map[(word)(_stack + _addressBus)] = _statusFlags;
@@ -731,7 +788,7 @@ void CPU::PHP() {
 void CPU::PLA() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "PLA" << std::endl;
+	std::cout << "PLA";
 	
 	_stackPointer++;
 	
@@ -744,7 +801,7 @@ void CPU::PLA() {
 void CPU::PLP() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "PLP" << std::endl;
+	std::cout << "PLP";
 
 	_stackPointer++;
 
@@ -769,13 +826,13 @@ void CPU::ROR() {
 void CPU::RTI() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "RTI" << std::endl;
+	std::cout << "RTI";
 }
 
 void CPU::RTS() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "RTS" << std::endl;
+	std::cout << "RTS";
 }
 
 void CPU::SBC() {
@@ -787,7 +844,7 @@ void CPU::SBC() {
 void CPU::SEC() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "SEC" << std::endl;
+	std::cout << "SEC";
 
 	setFlag(STATUS_FLAG::C);
 
@@ -797,7 +854,7 @@ void CPU::SEC() {
 void CPU::SED() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "SED" << std::endl;
+	std::cout << "SED";
 
 	setFlag(STATUS_FLAG::D);
 
@@ -807,7 +864,7 @@ void CPU::SED() {
 void CPU::SEI() {
 	displayInstructionAsBytes((size_t)BYTES_USED::ONE_BYTE);
 
-	std::cout << "SEI" << std::endl;
+	std::cout << "SEI";
 
 	setFlag(STATUS_FLAG::I);
 
@@ -835,7 +892,7 @@ void CPU::STY() {
 void CPU::TAX() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "TAX" << std::endl;
+	std::cout << "TAX";
 
 	_indexX = _accumulator;
 
@@ -845,7 +902,7 @@ void CPU::TAX() {
 void CPU::TAY() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "TAY" << std::endl;
+	std::cout << "TAY";
 
 	_indexY = _accumulator;
 
@@ -855,7 +912,7 @@ void CPU::TAY() {
 void CPU::TSX() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "TSX" << std::endl;
+	std::cout << "TSX";
 	
 	_indexX = _stackPointer;
 
@@ -865,7 +922,7 @@ void CPU::TSX() {
 void CPU::TXA() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "TXA" << std::endl;
+	std::cout << "TXA";
 
 	_accumulator = _indexX;
 
@@ -875,7 +932,7 @@ void CPU::TXA() {
 void CPU::TXS() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "TXS" << std::endl;
+	std::cout << "TXS";
 
 	_stackPointer = _indexX;
 
@@ -885,7 +942,7 @@ void CPU::TXS() {
 void CPU::TYA() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-	std::cout << "TYA" << std::endl;
+	std::cout << "TYA";
 
 	_accumulator = _indexY;
 
@@ -893,11 +950,15 @@ void CPU::TYA() {
 }
 
 void CPU::setFlag(STATUS_FLAG flag) {
-	_statusFlags ^= (byte) flag;
+	_statusFlags |= (byte) flag;
 }
 
 void CPU::unsetFlag(STATUS_FLAG flag) {
 	_statusFlags &= ~((byte) flag);
+}
+
+bool CPU::isSet(STATUS_FLAG flag) {
+	return _statusFlags & (byte) flag;
 }
 
 void CPU::useFullAddressingModeSet() {
@@ -913,7 +974,7 @@ void CPU::useFullAddressingModeSet() {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " ($" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X)" << std::endl;
+			std::cout << instructionName << " ($" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X)";
 			break;
 
 		case (byte) FULL_ADDRESSING_MODES_SET::ZEROPAGE:
@@ -922,7 +983,7 @@ void CPU::useFullAddressingModeSet() {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 			_addressBus = _dataBus;
 			setDataBusFromAddressBus();
@@ -934,7 +995,7 @@ void CPU::useFullAddressingModeSet() {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " #$" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+			std::cout << instructionName << " #$" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 			break;
 
 		case (byte) FULL_ADDRESSING_MODES_SET::ABSOLUTE:
@@ -944,7 +1005,7 @@ void CPU::useFullAddressingModeSet() {
 
 			_dataBus = _map[getBigEndianAddress(_addressBus)];
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus);
 			break;
 
 		case (byte) FULL_ADDRESSING_MODES_SET::ZEROPAGE_POST_Y: // TODO
@@ -953,7 +1014,7 @@ void CPU::useFullAddressingModeSet() {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " ($" << std::setfill('0') << std::setw(2) << (int) _dataBus << "), X" << std::endl;
+			std::cout << instructionName << " ($" << std::setfill('0') << std::setw(2) << (int) _dataBus << "), X";
 			break;
 
 		case (byte) FULL_ADDRESSING_MODES_SET::ZEROPAGE_X: // TODO
@@ -962,7 +1023,7 @@ void CPU::useFullAddressingModeSet() {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X" << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X";
 			break;
 
 		case (byte) FULL_ADDRESSING_MODES_SET::ABSOLUTE_Y:
@@ -972,7 +1033,7 @@ void CPU::useFullAddressingModeSet() {
 
 			setAddressBusFromTwoNextBytesInROM();
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ", Y" << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ", Y";
 
 			_addressBus = getLittleEndianAddress(getBigEndianAddress(_addressBus) + _indexY);
 			break;
@@ -984,7 +1045,7 @@ void CPU::useFullAddressingModeSet() {
 
 			setAddressBusFromTwoNextBytesInROM();
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ", X" << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_addressBus) << ", X";
 
 			_addressBus = getLittleEndianAddress(getBigEndianAddress(_addressBus) + _indexX);
 			break;
@@ -1009,7 +1070,7 @@ void CPU::usePartialAddressingModeSet(INDEX index) {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " #$" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+			std::cout << instructionName << " #$" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 			break;
 
 		case (byte) PARTIAL_ADDRESSING_MODES_SET::ZEROPAGE:
@@ -1018,7 +1079,7 @@ void CPU::usePartialAddressingModeSet(INDEX index) {
 			incrementProgramCounter();
 			setDataBusFromByteAtPC(); // get operand
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus;
 
 			_addressBus = _dataBus;
 			setDataBusFromAddressBus();
@@ -1027,7 +1088,7 @@ void CPU::usePartialAddressingModeSet(INDEX index) {
 		case (byte) PARTIAL_ADDRESSING_MODES_SET::ACCUMULATOR:
 			displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
-			std::cout << instructionName << ", A" << std::endl;
+			std::cout << instructionName << ", A";
 			break;
 
 		case (byte) PARTIAL_ADDRESSING_MODES_SET::ABSOLUTE:
@@ -1037,7 +1098,7 @@ void CPU::usePartialAddressingModeSet(INDEX index) {
 
 			_dataBus = _map[getBigEndianAddress(_addressBus)];
 
-			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) _addressBus << std::endl;
+			std::cout << instructionName << " $" << std::setfill('0') << std::setw(4) << (int) _addressBus;
 			break;
 
 		case (byte) PARTIAL_ADDRESSING_MODES_SET::ZEROPAGE_INDEXED:
@@ -1048,11 +1109,11 @@ void CPU::usePartialAddressingModeSet(INDEX index) {
 
 			switch (index) {
 				case INDEX::INDEX_X:
-					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X" << std::endl;
+					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X";
 					break;
 
 				case INDEX::INDEX_Y:
-					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", Y" << std::endl;
+					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", Y";
 					break;
 
 				default:
@@ -1069,11 +1130,11 @@ void CPU::usePartialAddressingModeSet(INDEX index) {
 
 			switch (index) {
 				case INDEX::INDEX_X:
-					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X" << std::endl;
+					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", X";
 					break;
 
 				case INDEX::INDEX_Y:
-					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", Y" << std::endl;
+					std::cout << instructionName << " $" << std::setfill('0') << std::setw(2) << (int) _dataBus << ", Y";
 					break;
 
 				default:
