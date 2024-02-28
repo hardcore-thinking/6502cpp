@@ -90,7 +90,7 @@ class CPU {
 	private:
 		void fetchAndExecute();
 
-		void updateState(byte value);
+		void updateState(byte value, ARITHMETIC_OPERATION operation = ARITHMETIC_OPERATION::NO_OPERATION);
 
 		// ADd with Carry
 		void ADC();
@@ -262,6 +262,8 @@ class CPU {
 
 		void setFlag(STATUS_FLAG flag);
 		void unsetFlag(STATUS_FLAG flag);
+
+		bool isNegative(byte value);
 
 		bool isSet(STATUS_FLAG flag);
 

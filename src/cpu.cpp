@@ -257,7 +257,7 @@ void CPU::displayROM(bool stopOnBreak) const {
 	std::cout << "\t";
 	std::cout << std::hex;
 
-	for (int i = 0; i < 0x10; i++) {
+	for (int i = 0; i < 16; i++) {
 		std::cout << std::uppercase << std::setw(2) << std::setfill('0') << i << " ";
 	}
 
@@ -363,7 +363,8 @@ void CPU::fetchAndExecute()  {
 	std::cout.flags(f);
 }
 
-void CPU::updateState(byte value) {
+void CPU::updateState(byte value, ARITHMETIC_OPERATION operation) {
+	// check N and Z flag
 	if (value == (byte) 0x00) {
 		unsetFlag(STATUS_FLAG::N);
 		setFlag(STATUS_FLAG::Z);
@@ -378,10 +379,45 @@ void CPU::updateState(byte value) {
 		unsetFlag(STATUS_FLAG::N);
 		unsetFlag(STATUS_FLAG::Z);
 	}
+
+	// check V flag
+	switch (operation) {
+		case ARITHMETIC_OPERATION::ADDITION:
+			// if sides of the operation are both negative
+			if (isNegative(value) && isNegative(_accumulator)) {
+				// if their sum is positive
+				if (!isNegative((byte)(value + _accumulator))) {
+					setFlag(STATUS_FLAG::V);
+				}
+				else {
+					unsetFlag(STATUS_FLAG::V);
+				}
+			}
+			break;
+
+		case ARITHMETIC_OPERATION::SUBTRACTION:
+			// if sides of the operation are both negative
+			if (!isNegative(value) && !isNegative(_accumulator)) {
+				// if their sum is negative
+				if (isNegative((byte)(value + _accumulator))) {
+					setFlag(STATUS_FLAG::V);
+				}
+				else {
+					unsetFlag(STATUS_FLAG::V);
+				}
+			}
+			break;
+
+		default:
+			unsetFlag(STATUS_FLAG::V);
+			break;
+	}
 }
 
 void CPU::ADC() {
 	useFullAddressingModeSet();
+
+	updateState(_dataBus, ARITHMETIC_OPERATION::ADDITION);
 
 	_accumulator += _dataBus + ((_statusFlags & (byte)(STATUS_FLAG::C)) ? 1 : 0);
 
@@ -406,9 +442,8 @@ void CPU::BCC() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
+	std::cout << "BCC $";
 	checkBranching(STATUS_FLAG::C, false);
-
-	std::cout << "BCC $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -419,9 +454,8 @@ void CPU::BCS() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
+	std::cout << "BCS $";
 	checkBranching(STATUS_FLAG::C, true);
-
-	std::cout << "BCS $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -432,9 +466,8 @@ void CPU::BEQ() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
+	std::cout << "BEQ $";
 	checkBranching(STATUS_FLAG::Z, true);
-
-	std::cout << "BEQ $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -451,9 +484,8 @@ void CPU::BMI() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
+	std::cout << "BMI $";
 	checkBranching(STATUS_FLAG::N, true);
-
-	std::cout << "BMI $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -464,9 +496,8 @@ void CPU::BNE() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 	
+	std::cout << "BNE $";
 	checkBranching(STATUS_FLAG::Z, false);
-
-	std::cout << "BNE $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -477,9 +508,8 @@ void CPU::BPL() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
+	std::cout << "BPL $";
 	checkBranching(STATUS_FLAG::N, false);
-
-	std::cout << "BPL $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -496,9 +526,8 @@ void CPU::BVC() {
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
 
+	std::cout << "BVC $";
 	checkBranching(STATUS_FLAG::V, false);
-
-	std::cout << "BVC $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -508,10 +537,9 @@ void CPU::BVS() {
 	std::cout << std::hex << std::uppercase;
 
 	displayInstructionAsBytes((size_t) BYTES_USED::TWO_BYTES);
-
+	
+	std::cout << "BVS $";
 	checkBranching(STATUS_FLAG::V, true);
-
-	std::cout << "BVS $" << std::setfill('0') << std::setw(2) << (int) _dataBus << "    -> $" << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 
 	std::cout.flags(f);
 }
@@ -817,6 +845,10 @@ void CPU::RTS() {
 void CPU::SBC() {
 	useFullAddressingModeSet();
 
+	_accumulator -= _dataBus - ((_statusFlags & (byte)(STATUS_FLAG::C)) ? 1 : 0);
+
+	updateState(_accumulator, ARITHMETIC_OPERATION::SUBTRACTION);
+
 	incrementProgramCounter();
 }
 
@@ -938,6 +970,10 @@ void CPU::unsetFlag(STATUS_FLAG flag) {
 
 bool CPU::isSet(STATUS_FLAG flag) {
 	return _statusFlags & (byte) flag;
+}
+
+bool CPU::isNegative(byte value) {
+	return value & 0x80; // check bit 8 is 1
 }
 
 void CPU::useFullAddressingModeSet() {
@@ -1153,53 +1189,45 @@ void CPU::setAddressBusFromTwoNextBytesInROM() {
 }
 
 void CPU::checkBranching(STATUS_FLAG flag, bool checkSet) {	
-	if (checkSet) {
-		if (isSet(flag)) {
-			incrementProgramCounter();
-			setDataBusFromByteAtPC();
+	// particularly ugly but works : if we check for a flag to be set (eg. BCS) check isSet(flag). Else check !isSet(flag)
+	if (checkSet ? isSet(flag) : !isSet(flag)) {
+		// get operand
+		incrementProgramCounter();
+		setDataBusFromByteAtPC();
 
-			updateState(_dataBus);
+		updateState(_dataBus);
 
-			if (isSet(STATUS_FLAG::N)) {
-				_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus));
-			}
+		incrementProgramCounter();
 
-			else {
-				_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) + _dataBus);
-			}
+		if (isSet(STATUS_FLAG::N)) {
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus));
 		}
 
 		else {
-			incrementProgramCounter();
-			setDataBusFromByteAtPC();
-
-			incrementProgramCounter();
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) + (byte) _dataBus);
 		}
+
+		std::cout << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 	}
 
 	else {
-		if (!isSet(flag)) {
-			incrementProgramCounter();
-			setDataBusFromByteAtPC();
+		incrementProgramCounter();
+		setDataBusFromByteAtPC();
 
-			updateState(_dataBus);
+		updateState(_dataBus);
 
-			if (isSet(STATUS_FLAG::N)) {
-				_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus));
-			}
+		incrementProgramCounter();
 
-			else {
-				_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) + _dataBus);
-			}
+		if (isSet(STATUS_FLAG::N)) {
+			std::cout << std::setfill('0') << std::setw(4) << (int)getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus);
 		}
 
 		else {
-			incrementProgramCounter();
-			setDataBusFromByteAtPC();
-
-			incrementProgramCounter();
+			std::cout << std::setfill('0') << std::setw(4) << (int)getBigEndianAddress(_programCounter) + _dataBus;
 		}
 	}
+
+	std::cout << "    -> $" << std::setfill('0') << std::setw(4) << (int) getBigEndianAddress(_programCounter);
 }
 
 void CPU::setProgramCounterFromResetVector() {

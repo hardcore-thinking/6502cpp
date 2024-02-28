@@ -54,4 +54,10 @@ enum class BYTES_USED : size_t {
 	THREE_BYTES
 };
 
+enum class ARITHMETIC_OPERATION : byte {
+	NO_OPERATION,
+	ADDITION,
+	SUBTRACTION
+};
+
 #endif // ADDRESSING_MODE_HPP
