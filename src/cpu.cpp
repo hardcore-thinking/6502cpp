@@ -1189,18 +1189,17 @@ void CPU::setAddressBusFromTwoNextBytesInROM() {
 }
 
 void CPU::checkBranching(STATUS_FLAG flag, bool checkSet) {	
+	// get operand
+	incrementProgramCounter();
+	setDataBusFromByteAtPC();
+
 	// particularly ugly but works : if we check for a flag to be set (eg. BCS) check isSet(flag). Else check !isSet(flag)
 	if (checkSet ? isSet(flag) : !isSet(flag)) {
-		// get operand
-		incrementProgramCounter();
-		setDataBusFromByteAtPC();
-
 		updateState(_dataBus);
-
 		incrementProgramCounter();
 
 		if (isSet(STATUS_FLAG::N)) {
-			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus));
+			_programCounter = getLittleEndianAddress(getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus) - (word) BYTES_USED::TWO_BYTES);
 		}
 
 		else {
@@ -1211,15 +1210,11 @@ void CPU::checkBranching(STATUS_FLAG flag, bool checkSet) {
 	}
 
 	else {
-		incrementProgramCounter();
-		setDataBusFromByteAtPC();
-
 		updateState(_dataBus);
-
 		incrementProgramCounter();
 
 		if (isSet(STATUS_FLAG::N)) {
-			std::cout << std::setfill('0') << std::setw(4) << (int)getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus);
+			std::cout << std::setfill('0') << std::setw(4) << (int)getBigEndianAddress(_programCounter) - (byte)(0xFF - _dataBus) - (word) BYTES_USED::TWO_BYTES;
 		}
 
 		else {
