@@ -277,6 +277,9 @@ class CPU {
 
 		void setAddressBusFromTwoNextBytesInROM();
 
+		void pushToStack(byte value);
+		byte pullFromStack();
+
 		// checkSet checks if the function must check for the flag to be set or for it to be unset
 		// true : isSet(flag)
 		// false : !isSet(flag)
@@ -286,7 +289,7 @@ class CPU {
 
 	private:
 		// Pins
-		// (Doesn't include RDY, VCC and VSS since this program assume 
+		// (Doesn't include RDY, VCC and VSS since this program assumes 
 		// the CPU is always running the moment it's ran)
 		bool _readWrite         = (bool) DATA_BUS_OPERATION::READ; // 0 : Write / 1 : Read
 		byte _dataBus           = (byte) 0x00;  // D0-D7

@@ -33,10 +33,10 @@ int main(int argc, char* argv[]) {
 	
 	std::vector<byte> rom(MAX_ROM_SIZE, (byte) 0x00);
 
-	loadRAM(ram, "C:/Users/ajvp/Desktop/Misc/random_bytes_dump");
-	loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom1");
+	//loadRAM(ram, "C:/Users/ajvp/Desktop/Misc/random_bytes_dump");
+	//loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom1");
 	//loadROM(rom, "C:/Users/Alexy/Desktop/Misc/rom1");
-	//loadROM(rom, "C:/Users/ajvp/Desktop/Misc/smb1.bin");
+	loadROM(rom, "C:/Users/ajvp/Desktop/Misc files/a.out");
 
 	CPU cpu(&ram, (word) 0x0000, (word) MAX_RAM_SIZE, &rom, (word) 0x8000, (word) MAX_ROM_SIZE);
 

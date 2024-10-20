@@ -672,7 +672,7 @@ void CPU::JMP() {
 	std::ios_base::fmtflags f(std::cout.flags());
 	std::cout << std::hex << std::uppercase;
 
-	displayInstructionAsBytes((size_t)BYTES_USED::THREE_BYTES);
+	displayInstructionAsBytes((size_t) BYTES_USED::THREE_BYTES);
 
 	switch (_dataBus) {
 		case (byte) JMP_ADDRESSING_MODES::ABSOLUTE:
@@ -700,6 +700,12 @@ void CPU::JSR() {
 	std::cout << std::hex << std::uppercase;
 
 	displayInstructionAsBytes((size_t) BYTES_USED::THREE_BYTES);
+
+	// saving next address in stack for RTS
+	_map[_stack + _stackPointer] = (byte) getLittleEndianAddress(getBigEndianAddress(_programCounter) + 1);
+	_stackPointer--;
+
+
 
 	incrementProgramCounter();
 	setDataBusFromByteAtPC(); // get operand low byte
@@ -840,13 +846,16 @@ void CPU::RTS() {
 	displayInstructionAsBytes((size_t) BYTES_USED::ONE_BYTE);
 
 	std::cout << "RTS";
+
+	_addressBus = (word) _map[_stack + _stackPointer++];
+
+	
 }
 
 void CPU::SBC() {
 	useFullAddressingModeSet();
 
 	_accumulator -= _dataBus - ((_statusFlags & (byte)(STATUS_FLAG::C)) ? 1 : 0);
-
 	updateState(_accumulator, ARITHMETIC_OPERATION::SUBTRACTION);
 
 	incrementProgramCounter();
@@ -1186,6 +1195,18 @@ void CPU::setAddressBusFromTwoNextBytesInROM() {
 	incrementProgramCounter();
 	setDataBusFromByteAtPC(); // get operand high byte
 	_addressBus |= _dataBus;
+}
+
+void CPU::pushToStack(byte value) {
+	_addressBus = (word) _stackPointer;         // set address bus to current stack pointer
+	_map[(word)(_stack + _addressBus)] = value; // set value to the stack
+	_stackPointer--;                            // decrement stack pointer
+}
+
+byte CPU::pullFromStack() {
+	_stackPointer++;                           // increment stack pointer
+	_addressBus = (word) _stackPointer;        // set address bus to current stack pointer
+	return _map[(word)(_stack + _addressBus)]; // return value from the stack
 }
 
 void CPU::checkBranching(STATUS_FLAG flag, bool checkSet) {	
