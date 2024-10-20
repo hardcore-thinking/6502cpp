@@ -427,6 +427,8 @@ void CPU::ADC() {
 void CPU::AND() {
 	useFullAddressingModeSet();
 
+	_accumulator &= _dataBus;
+
 	incrementProgramCounter();
 }
 
@@ -475,6 +477,11 @@ void CPU::BEQ() {
 void CPU::BIT() {
 	usePartialAddressingModeSet();
 
+	_dataBus = _accumulator & _map[_addressBus];
+
+	if (_dataBus & (byte)STATUS_FLAG::N) { setFlag(STATUS_FLAG::N); } else { unsetFlag(STATUS_FLAG::N); }
+	if (_dataBus & (byte)STATUS_FLAG::V) { setFlag(STATUS_FLAG::V); } else { unsetFlag(STATUS_FLAG::V); }
+
 	incrementProgramCounter();
 }
 
@@ -516,6 +523,8 @@ void CPU::BPL() {
 
 void CPU::BRK() {
 	std::cout << "BRK";
+	
+	// TODO
 
 	incrementProgramCounter();
 }
@@ -587,6 +596,8 @@ void CPU::CLV() {
 void CPU::CMP() {
 	useFullAddressingModeSet();
 
+	_dataBus = _accumulator - _dataBus;
+
 	incrementProgramCounter();
 }
 
@@ -639,11 +650,15 @@ void CPU::DEY() {
 void CPU::EOR() {
 	useFullAddressingModeSet();
 
+	_accumulator ^= _dataBus;
+
 	incrementProgramCounter();
 }
 
 void CPU::INC() {
 	usePartialAddressingModeSet(INDEX::INDEX_X);
+
+	++_map[_addressBus];
 
 	incrementProgramCounter();
 }
@@ -894,17 +909,23 @@ void CPU::SEI() {
 void CPU::STA() {
 	useFullAddressingModeSet(); // exception
 
+	_indexY = _map[_addressBus];
+
 	incrementProgramCounter();
 }
 
 void CPU::STX() {
 	usePartialAddressingModeSet(INDEX::INDEX_Y);
 
+	_indexX = _map[_addressBus];
+
 	incrementProgramCounter();
 }
 
 void CPU::STY() {
 	usePartialAddressingModeSet(INDEX::INDEX_X);
+
+	_indexY = _map[_addressBus];
 
 	incrementProgramCounter();
 }
