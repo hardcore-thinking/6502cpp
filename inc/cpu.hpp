@@ -10,7 +10,7 @@
 #include "addressing_mode.hpp"
 #include "tools.hpp"
 
-enum class STATUS_FLAG : byte {
+enum class STATUS_FLAG : Byte {
 	N = 0b10000000,
 	V = 0b01000000,
 	_ = 0b00100000,
@@ -34,63 +34,63 @@ constexpr int MAX_STACK_SIZE  = 0x100;
 constexpr int MAX_ROM_SIZE    = 0x8000;
 
 // Vectors nibbles
-constexpr word NMI_LOW    = 0xFFFA;
-constexpr word NMI_HIGH   = 0xFFFB;
-constexpr word RESET_LOW  = 0xFFFC;
-constexpr word RESET_HIGH = 0xFFFD;
-constexpr word IRQ_LOW    = 0xFFFE;
-constexpr word IRQ_HIGH   = 0xFFFF;
+constexpr Word NMI_LOW    = 0xFFFA;
+constexpr Word NMI_HIGH   = 0xFFFB;
+constexpr Word RESET_LOW  = 0xFFFC;
+constexpr Word RESET_HIGH = 0xFFFD;
+constexpr Word IRQ_LOW    = 0xFFFE;
+constexpr Word IRQ_HIGH   = 0xFFFF;
 
 class CPU {
 	using Instruction = void (CPU::*)(void);
 
 	public:
-		CPU(std::vector<byte>* ram, word ramStart, word ramSize, std::vector<byte>* rom, word romStart, word romSize);
+		CPU(std::vector<Byte>* ram, Word ramStart, Word ramSize, std::vector<Byte>* rom, Word romStart, Word romSize);
 
 		// Debug log function
-		void displayStatus() const;
-		void displayStatusFlag(STATUS_FLAG flag);
+		void DisplayStatus() const;
+		void DisplayStatusFlag(STATUS_FLAG flag);
 
 		// Registers specific logs
-		void displayAccumulator() const;
-		void displayIndexX() const;
-		void displayIndexY() const;
-		void displayRegisters() const;
+		void DisplayAccumulator() const;
+		void DisplayIndexX() const;
+		void DisplayIndexY() const;
+		void DisplayRegisters() const;
 
 		// Stack pointer log
-		void displayStackPointer() const;
+		void DisplayStackPointer() const;
 		
 		// Buses specific logs
-		void displayAddressBus() const;
-		void displayDataBus() const;
-		void displayBuses() const;
+		void DisplayAddressBus() const;
+		void DisplayDataBus() const;
+		void DisplayBuses() const;
 		
 		// Program counter log
-		void displayProgramCounter() const;
+		void DisplayProgramCounter() const;
 
 		// All logs at once
-		void displayState() const;
+		void DisplayState() const;
 
 		// RAM specific display
-		void displayRAM() const;
-		void displayZeroPage() const;
-		void displayRAMPage(byte page) const;
-		void displayStack() const;
+		void DisplayRAM() const;
+		void DisplayZeroPage() const;
+		void DisplayRAMPage(Byte page) const;
+		void DisplayStack() const;
 		
 		// ROM display
-		void displayROM(bool stopOnBreak) const;
-		void displayInstructionAsBytes(size_t bytesN) const;
+		void DisplayROM(bool stopOnBreak) const;
+		void DisplayInstructionAsBytes(size_t bytesN) const;
 
 		// Map display
-		void displayMap() const;
+		void DisplayMap() const;
 
 		// Run execution of the CPU
-		void run(bool stepByStep);
+		void Run(bool stepByStep);
 
 	private:
-		void fetchAndExecute();
+		void FetchAndExecute();
 
-		void updateState(byte value, ARITHMETIC_OPERATION operation = ARITHMETIC_OPERATION::NO_OPERATION);
+		void UpdateState(Byte value, ARITHMETIC_OPERATION operation = ARITHMETIC_OPERATION::NO_OPERATION);
 
 		// ADd with Carry
 		void ADC();
@@ -260,63 +260,63 @@ class CPU {
 		// Transfer Y to A
 		void TYA();
 
-		void setFlag(STATUS_FLAG flag);
-		void unsetFlag(STATUS_FLAG flag);
+		void SetFlag(STATUS_FLAG flag);
+		void UnsetFlag(STATUS_FLAG flag);
 
-		bool isNegative(byte value);
+		bool IsNegative(Byte value);
 
-		bool isSet(STATUS_FLAG flag);
+		bool IsSet(STATUS_FLAG flag);
 
-		void useFullAddressingModeSet();
-		void usePartialAddressingModeSet(INDEX index = INDEX::UNUSED);
+		void UseFullAddressingModeSet();
+		void UsePartialAddressingModeSet(INDEX index = INDEX::UNUSED);
 
-		void incrementProgramCounter();
+		void IncrementProgramCounter();
 
-		inline void setDataBusFromByteAtPC();
-		inline void setDataBusFromAddressBus();
+		inline void SetDataBusFromByteAtPC();
+		inline void SetDataBusFromAddressBus();
 
-		void setAddressBusFromTwoNextBytesInROM();
+		void SetAddressBusFromTwoNextBytesInROM();
 
-		void pushToStack(byte value);
-		byte pullFromStack();
+		void PushToStack(Byte value);
+		Byte PullFromStack();
 
 		// checkSet checks if the function must check for the flag to be set or for it to be unset
 		// true : isSet(flag)
 		// false : !isSet(flag)
-		void checkBranching(STATUS_FLAG flag, bool checkSet);
+		void CheckBranching(STATUS_FLAG flag, bool checkSet);
 
-		void setProgramCounterFromResetVector();
+		void SetProgramCounterFromResetVector();
 
 	private:
 		// Pins
 		// (Doesn't include RDY, VCC and VSS since this program assumes 
 		// the CPU is always running the moment it's ran)
 		bool _readWrite         = (bool) DATA_BUS_OPERATION::READ; // 0 : Write / 1 : Read
-		byte _dataBus           = (byte) 0x00;  // D0-D7
-		word _addressBus        = (word) 0x0000; // A0-A15
+		Byte _dataBus           = (Byte) 0x00;  // D0-D7
+		Word _addressBus        = (Word) 0x0000; // A0-A15
 
 		// Internals
-		byte _accumulator       = (byte) 0x00; // A
-		byte _indexX            = (byte) 0x00; // X
-		byte _indexY            = (byte) 0x00; // Y
-		byte _statusFlags       = (byte) STATUS_FLAG::_; // SR
-		byte _stackPointer      = (byte) 0x00; // SP
-		word _programCounter    = (word) 0x0000; // PC
+		Byte _accumulator       = (Byte) 0x00; // A
+		Byte _indexX            = (Byte) 0x00; // X
+		Byte _indexY            = (Byte) 0x00; // Y
+		Byte _statusFlags       = (Byte) STATUS_FLAG::_; // SR
+		Byte _stackPointer      = (Byte) 0x00; // SP
+		Word _programCounter    = (Word) 0x0000; // PC
 
 		// Vectors
-		word _nmi = (word) 0x0000; // Non Maskable Interrupt vector
-		word _res = (word) 0x0000; // RESet vector
-		word _irq = (word) 0x0000; // Interrupt ReQuest vector
+		Word _nmi = (Word) 0x0000; // Non Maskable Interrupt vector
+		Word _res = (Word) 0x0000; // RESet vector
+		Word _irq = (Word) 0x0000; // Interrupt ReQuest vector
 
 		// Memory map
-		std::vector<byte> _map;
+		std::vector<Byte> _map;
 
 		// Links
-		word _ram         = (word) 0x0000;
-		word _ramSize     = (word) 0x0000;
-		word const _stack = (word) 0x0100;
-		word _rom         = (word) 0x0000;
-		word _romSize     = (word) 0x0000;
+		Word _ram         = (Word) 0x0000;
+		Word _ramSize     = (Word) 0x0000;
+		Word const _stack = (Word) 0x0100;
+		Word _rom         = (Word) 0x0000;
+		Word _romSize     = (Word) 0x0000;
 		
 		// Instructions
 		std::vector<std::string> _instructionsNames;

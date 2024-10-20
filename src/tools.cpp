@@ -1,15 +1,15 @@
 #include "tools.hpp"
 
-word getBigEndianAddress(word address) {
-	byte low = (address >> 8);
-	byte high = (byte) address;
+Word GetBigEndianAddress(Word address) {
+	Byte low = (address >> 8);
+	Byte high = (Byte) address;
 
-	return (((word) high) << 8) | (word) low;
+	return (((Word) high) << 8) | (Word) low;
 }
 
-word getLittleEndianAddress(word address) {
-	byte low = (byte) address;
-	byte high = (address >> 8);
+Word GetLittleEndianAddress(Word address) {
+	Byte low = (Byte) address;
+	Byte high = (address >> 8);
 
-	return (((word) low) << 8) | (word) high;
+	return (((Word) low) << 8) | (Word) high;
 }

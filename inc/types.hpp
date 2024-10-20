@@ -1,7 +1,9 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-typedef unsigned short word;
-typedef unsigned char byte;
+#include <cstdint>
+
+using Word = uint16_t;
+using Byte = uint8_t;
 
 #endif // TYPES_HPP

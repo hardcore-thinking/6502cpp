@@ -4,7 +4,7 @@
 
 #include "cpu.hpp"
 
-bool loadRAM(std::vector<byte>& ram, std::string filepath) {
+bool LoadRAM(std::vector<Byte>& ram, std::string filepath) {
 	std::ifstream ram_load(filepath, std::ios::in | std::ios::binary | std::ios::ate);
 
 	if (ram_load.is_open()) {
@@ -21,7 +21,7 @@ bool loadRAM(std::vector<byte>& ram, std::string filepath) {
 	}
 }
 
-bool loadROM(std::vector<byte>& rom, std::string filepath) {
+bool LoadROM(std::vector<Byte>& rom, std::string filepath) {
 	std::ifstream rom_load(filepath, std::ios::in | std::ios::binary | std::ios::ate);
 
 	if (rom_load.is_open()) {
@@ -41,29 +41,23 @@ bool loadROM(std::vector<byte>& rom, std::string filepath) {
 }
 
 int main(int argc, char* argv[]) {
-	std::vector<byte> ram(MAX_RAM_SIZE, (byte) 0x00);
+	std::vector<Byte> ram(MAX_RAM_SIZE, (Byte) 0x00);
 	
-	std::vector<byte> rom(MAX_ROM_SIZE, (byte) 0x00);
+	std::vector<Byte> rom(MAX_ROM_SIZE, (Byte) 0x00);
 
 	//loadRAM(ram, "C:/Users/ajvp/Desktop/Misc/random_bytes_dump");
 	//loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom1");
 	//loadROM(rom, "C:/Users/Alexy/Desktop/Misc/rom1");
-	loadROM(rom, "C:/Users/ajvp/Desktop/Misc files/a.out");
-	if (!loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom1")) {
-		if (!loadROM(rom, "C:/Users/Alexy/Desktop/Misc/rom1")) {
-			std::cerr << "Both roms doesn't exist" << std::endl;
-			return EXIT_FAILURE;
-		}
-	}
+	LoadROM(rom, "C:/Users/ajvp/Desktop/Misc files/a.out");
 	
 	// loadROM(rom, "C:/Users/ajvp/Desktop/Misc/smb1.bin");
 
-	CPU cpu(&ram, (word) 0x0000, (word) MAX_RAM_SIZE, &rom, (word) 0x8000, (word) MAX_ROM_SIZE);
+	CPU cpu(&ram, (Word) 0x0000, (Word) MAX_RAM_SIZE, &rom, (Word) 0x8000, (Word) MAX_ROM_SIZE);
 
-	cpu.displayROM(true);
+	cpu.DisplayROM(true);
 	std::cout << std::endl;
 
-	cpu.run(false);
+	cpu.Run(false);
 
 	return 0;
 }

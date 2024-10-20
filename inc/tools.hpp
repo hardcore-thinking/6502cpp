@@ -3,7 +3,7 @@
 
 #include "types.hpp"
 
-word getBigEndianAddress(word address);
-word getLittleEndianAddress(word address);
+Word GetBigEndianAddress(Word address);
+Word GetLittleEndianAddress(Word address);
 
 #endif // TOOLS_HPP
