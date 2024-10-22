@@ -48,7 +48,8 @@ int main(int argc, char* argv[]) {
 	//loadRAM(ram, "C:/Users/ajvp/Desktop/Misc/random_bytes_dump");
 	//loadROM(rom, "C:/Users/ajvp/Desktop/Misc/rom1");
 	//loadROM(rom, "C:/Users/Alexy/Desktop/Misc/rom1");
-	LoadROM(rom, "C:/Users/ajvp/Desktop/Misc files/a.out");
+	//LoadROM(rom, "C:/Users/ajvp/Desktop/Misc files/a.out");
+	LoadROM(rom, "C:/Users/Alexy/Desktop/Misc/a1.out");
 	
 	// loadROM(rom, "C:/Users/ajvp/Desktop/Misc/smb1.bin");
 
@@ -57,7 +58,7 @@ int main(int argc, char* argv[]) {
 	cpu.DisplayROM(true);
 	std::cout << std::endl;
 
-	cpu.Run(false);
+	cpu.Run(true);
 
 	return 0;
 }

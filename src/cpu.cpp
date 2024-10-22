@@ -716,11 +716,11 @@ void CPU::JSR() {
 
 	DisplayInstructionAsBytes((size_t) BYTES_USED::THREE_BYTES);
 
-	// saving next address in stack for RTS
-	_map[_stack + _stackPointer] = (Byte) GetLittleEndianAddress(GetBigEndianAddress(_programCounter) + 1);
-	_stackPointer--;
+	// saving next address high byte in stack for RTS
+	PushToStack((Byte)GetLittleEndianAddress(GetBigEndianAddress(_programCounter) + 3));
 
-
+	// saving next address low byte in stack for RTS
+	PushToStack((Byte)(GetBigEndianAddress(_programCounter) + 3));
 
 	IncrementProgramCounter();
 	SetDataBusFromByteAtPC(); // get operand low byte
@@ -862,7 +862,13 @@ void CPU::RTS() {
 
 	std::cout << "RTS";
 
-	_addressBus = (Word) _map[_stack + _stackPointer++];
+	_addressBus = PullFromStack() << 8;
+	_addressBus |= PullFromStack();
+
+	_programCounter = _addressBus;
+
+	DisplayAddressBus();
+	DisplayProgramCounter();
 }
 
 void CPU::SBC() {
@@ -996,11 +1002,11 @@ void CPU::UnsetFlag(STATUS_FLAG flag) {
 	_statusFlags &= ~((Byte) flag);
 }
 
-bool CPU::IsSet(STATUS_FLAG flag) {
+bool CPU::IsSet(STATUS_FLAG flag) const {
 	return _statusFlags & (Byte) flag;
 }
 
-bool CPU::IsNegative(Byte value) {
+bool CPU::IsNegative(Byte value) const {
 	return value & 0x80; // check bit 8 is 1
 }
 
@@ -1217,15 +1223,13 @@ void CPU::SetAddressBusFromTwoNextBytesInROM() {
 }
 
 void CPU::PushToStack(Byte value) {
-	_addressBus = (Word) _stackPointer;         // set address bus to current stack pointer
-	_map[(Word)(_stack + _addressBus)] = value; // set value to the stack
+	_map[(Word)(_stack + _stackPointer)] = value; // set value to the stack
 	_stackPointer--;                            // decrement stack pointer
 }
 
 Byte CPU::PullFromStack() {
 	_stackPointer++;                           // increment stack pointer
-	_addressBus = (Word) _stackPointer;        // set address bus to current stack pointer
-	return _map[(Word)(_stack + _addressBus)]; // return value from the stack
+	return _map[(Word)(_stack + _stackPointer)]; // return value from the stack
 }
 
 void CPU::CheckBranching(STATUS_FLAG flag, bool checkSet) {	

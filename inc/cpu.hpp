@@ -263,9 +263,9 @@ class CPU {
 		void SetFlag(STATUS_FLAG flag);
 		void UnsetFlag(STATUS_FLAG flag);
 
-		bool IsNegative(Byte value);
+		bool IsNegative(Byte value) const;
 
-		bool IsSet(STATUS_FLAG flag);
+		bool IsSet(STATUS_FLAG flag) const;
 
 		void UseFullAddressingModeSet();
 		void UsePartialAddressingModeSet(INDEX index = INDEX::UNUSED);
