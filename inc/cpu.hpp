@@ -90,7 +90,7 @@ class CPU {
 	private:
 		void FetchAndExecute();
 
-		void UpdateState(Byte value, ARITHMETIC_OPERATION operation = ARITHMETIC_OPERATION::NO_OPERATION);
+		void UpdateState(Byte reg, Byte* cmpVal = nullptr, ARITHMETIC_OPERATION operation = ARITHMETIC_OPERATION::NO_OPERATION);
 
 		// ADd with Carry
 		void ADC();
